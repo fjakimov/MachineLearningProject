@@ -10,7 +10,6 @@ from graphs import plot_model_comparison, plot_learning_curve, plot_strategy_hea
 from keras.models import Sequential
 from keras.layers import Flatten, Dense
 
-
 environment_name = "LunarLander-v2"
 episodes = 5
 log_dir = os.path.join("Training", "Logs")
@@ -20,6 +19,7 @@ os.makedirs(log_dir, exist_ok=True)
 os.makedirs(save_dir, exist_ok=True)
 
 env = gym.make(environment_name)
+
 
 def test_environment(env, episodes=5):
     for episode in range(1, episodes + 1):
@@ -34,7 +34,9 @@ def test_environment(env, episodes=5):
         print(f"Episode: {episode}, Score: {score}")
     env.close()
 
+
 test_environment(env)
+
 
 def train_and_evaluate_model(model_class, model_name, env, total_timesteps=500000):
     print(f"Training {model_name}...")
@@ -60,6 +62,7 @@ def train_and_evaluate_model(model_class, model_name, env, total_timesteps=50000
 
     return model, mean_reward, actions_log
 
+
 def build_ddqn_model(env):
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
@@ -67,6 +70,7 @@ def build_ddqn_model(env):
     model.add(Dense(64, activation="relu"))
     model.add(Dense(env.action_space.n, activation="linear"))
     return model
+
 
 def train_ddqn(env, total_timesteps=500000):
     print("Training DDQN...")
@@ -99,13 +103,13 @@ def train_ddqn(env, total_timesteps=500000):
     return model, ddqn_actions_log  # Return both model and actions_log
 
 
-
 def collect_rewards(model, env, total_timesteps=500000):
     rewards = []
     for i in range(0, total_timesteps, 1000):
         reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
         rewards.append(reward)
     return rewards
+
 
 dqn_model, dqn_mean_reward, dqn_actions_log = train_and_evaluate_model(DQN, "DQN", env)
 dqn_rewards = collect_rewards(dqn_model, env)
@@ -116,9 +120,7 @@ ddqn_rewards = collect_rewards(ddqn_model, env)
 ppo_model, ppo_mean_reward, ppo_actions_log = train_and_evaluate_model(PPO, "PPO", env)
 ppo_rewards = collect_rewards(ppo_model, env)
 
-
 plot_learning_curve('DQN', dqn_model, env)
-
 
 plot_learning_curve('PPO', ppo_model, env)
 
