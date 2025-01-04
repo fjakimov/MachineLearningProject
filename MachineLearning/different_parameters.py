@@ -14,7 +14,6 @@ save_dir = os.path.join("Training", "Saved_Models_Different_Parameters")
 os.makedirs(log_dir, exist_ok=True)
 os.makedirs(save_dir, exist_ok=True)
 
-# Initialize environment
 env = gym.make(environment_name)
 
 def train_and_evaluate_model_with_hyperparams(model_class, model_name, env, hyperparams, total_timesteps=500000):
@@ -25,7 +24,6 @@ def train_and_evaluate_model_with_hyperparams(model_class, model_name, env, hype
     model_save_dir = os.path.join(save_dir, model_name)
     os.makedirs(model_save_dir, exist_ok=True)
 
-    # Initialize model with custom hyperparameters
     model = model_class("MlpPolicy", env, verbose=1, tensorboard_log=model_log_path, **hyperparams)
 
     eval_callback = EvalCallback(env, best_model_save_path=model_save_dir, log_path=model_log_path, eval_freq=1000,
@@ -42,7 +40,6 @@ def train_and_evaluate_model_with_hyperparams(model_class, model_name, env, hype
     return model, mean_reward
 
 
-# Hyperparameters to test
 dqn_hyperparams = [
     {"learning_rate": 1e-3, "buffer_size": 100000, "batch_size": 32, "gamma": 0.99},
     {"learning_rate": 5e-4, "buffer_size": 50000, "batch_size": 64, "gamma": 0.98},
@@ -60,7 +57,6 @@ ddqn_hyperparams = [
     {"learning_rate": 1e-4, "buffer_size": 50000, "batch_size": 32, "gamma": 0.98, "target_update_interval": 2000}
 ]
 
-# Function for training DDQN with hyperparameters
 def train_ddqn_with_hyperparams(env, hyperparams, total_timesteps=500000):
     print(f"Training DDQN with hyperparameters: {hyperparams}...")
 
@@ -83,14 +79,12 @@ def train_ddqn_with_hyperparams(env, hyperparams, total_timesteps=500000):
 
     return model, mean_reward
 
-# Train and evaluate DDQN models with hyperparameters
 ddqn_results = []
 for idx, params in enumerate(ddqn_hyperparams):
     model, mean_reward = train_ddqn_with_hyperparams(env, params)
     ddqn_results.append((f"DDQN_Params_{idx+1}", model, mean_reward))
 
 
-# Train and evaluate models with different hyperparameters
 dqn_results = []
 for idx, params in enumerate(dqn_hyperparams):
     model_name = f"DQN_Params_{idx+1}"
@@ -103,7 +97,6 @@ for idx, params in enumerate(ppo_hyperparams):
     model, mean_reward = train_and_evaluate_model_with_hyperparams(PPO, model_name, env, params)
     ppo_results.append((model_name, model, mean_reward))
 
-# Collect rewards for plotting
 def collect_rewards(model, env, total_timesteps=50000):
     rewards = []
     for _ in range(10):  # Evaluate over 10 episodes
@@ -111,7 +104,6 @@ def collect_rewards(model, env, total_timesteps=50000):
         rewards.append(reward)
     return rewards
 
-# Select the best models
 best_dqn_model = max(dqn_results, key=lambda x: x[2])[1]
 best_ppo_model = max(ppo_results, key=lambda x: x[2])[1]
 best_ddqn_model = max(ddqn_results, key=lambda x: x[2])[1]
@@ -133,16 +125,12 @@ def plot_rewards(results, title):
     plt.grid()
     plt.show()
 
-# Plot rewards for DQN models
 print("Plotting DQN Rewards...")
 plot_rewards(dqn_results, "DQN Models with Different Hyperparameters")
 
-# Plot rewards for PPO models
 print("Plotting PPO Rewards...")
 plot_rewards(ppo_results, "PPO Models with Different Hyperparameters")
 
-# Plot rewards for DDQN models
 print("Plotting DDQN Rewards...")
 plot_rewards(ddqn_results, "DDQN Models with Different Hyperparameters")
-# Close the environment
 env.close()
